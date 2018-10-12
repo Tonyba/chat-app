@@ -15,21 +15,26 @@ io.on('connection', (client) => {
 
         client.join(data.sala);
 
-        const personas = usuarios.addPersona(client.id, data.nombre, data.sala);
+        usuarios.addPersona(client.id, data.nombre, data.sala);
         client.broadcast.to(data.sala).emit('listPersonas', usuarios.getPersonasPorSala(data.sala));
+        client.broadcast.to(data.sala).emit('makeMensaje', crearMensaje('admin', `${data.nombre} ha entrado a la sala`));
+
         callback(usuarios.getPersonasPorSala(data.sala));
+
 
     });
 
-    client.on('makeMensaje', (data) => {
+    client.on('makeMensaje', (data, callback) => {
         const persona = usuarios.getPersona(client.id);
 
         const mensaje = crearMensaje(persona.nombre, data.mensaje);
-        client.broadcast.to(data.sala).emit('makeMensaje', mensaje);
+        client.broadcast.to(persona.sala).emit('makeMensaje', mensaje);
+
+        callback(mensaje);
     });
 
 
-    client.on('disconnect', (data) => {
+    client.on('disconnect', () => {
         const personaBorrada = usuarios.deletePersona(client.id);
 
         client.broadcast.to(personaBorrada.sala).emit('makeMensaje', crearMensaje('admin', `${personaBorrada.nombre} se murio`));

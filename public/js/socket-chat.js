@@ -14,18 +14,20 @@ var usuario = {
 
 socket.on('connect', function() {
     socket.emit('entrarChat', usuario, function(resp) {
-        console.log('usuarios conectados', resp);
+        renderizarUsuarios(resp);
     });
 });
 
 socket.on('makeMensaje', function(data) {
-    console.log('servidor', data);
+    renderizarMensajes(data, false);
+    scrollBottom();
+
 });
 
 // escuchar cambios de usuarios
 // cuando un usuario entra o sale
 socket.on('listPersonas', function(data) {
-    console.log(data);
+    renderizarUsuarios(data);
 });
 
 // mensajes privados
